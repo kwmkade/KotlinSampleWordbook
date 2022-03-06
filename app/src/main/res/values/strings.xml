@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">KotlinSampleWordbook</string>
+    <string name="recording">Recording</string>
+    <string name="stopped">stopped</string>
 </resources>
