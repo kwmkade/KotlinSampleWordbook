@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/fragment_speech_recognizer_dialog.xml" value="0.4395833333333333" />
       </map>
     </option>
   </component>
