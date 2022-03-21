@@ -19,6 +19,7 @@ class SpeechRecognizerDialogFragment : DialogFragment() {
     private lateinit var _textViewAnnounce: TextView
     private var speechRecognizer: SpeechRecognizer? = null
     private val mHandler: Handler = Handler(Looper.getMainLooper())
+    private val words = mutableMapOf<String, Int>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,8 +47,11 @@ class SpeechRecognizerDialogFragment : DialogFragment() {
             this.speechRecognizer =
                 SpeechRecognizer.createSpeechRecognizer(activity?.applicationContext)
             this.speechRecognizer?.setRecognitionListener(createRecognitionListenerStringStream {
-                //addText(it)
-                Log.d("RecognitionListener", it)
+                it.split(" ").forEach {
+                    words[it] = 1
+                    val c = words.getOrDefault(it, 0)
+                    words[it] = c + 1
+                }
             })
         }
     }
@@ -161,7 +165,7 @@ class SpeechRecognizerDialogFragment : DialogFragment() {
             override fun onResults(results: Bundle) {
                 val stringArray =
                     results.getStringArrayList(android.speech.SpeechRecognizer.RESULTS_RECOGNITION)
-                onResult("onResults " + stringArray.toString())
+                onResult(stringArray.toString())
 
                 speechRecognizer?.stopListening()
                 startListening()
