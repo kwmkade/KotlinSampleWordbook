@@ -13,13 +13,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 
 class SpeechRecognizerDialogFragment : DialogFragment() {
 
     private lateinit var _textViewAnnounce: TextView
     private var speechRecognizer: SpeechRecognizer? = null
     private val mHandler: Handler = Handler(Looper.getMainLooper())
-    private val words = mutableMapOf<String, Int>()
+    private val mWords = mutableMapOf<String, Int>()
+    private val mViewModel: CardViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,17 +42,22 @@ class SpeechRecognizerDialogFragment : DialogFragment() {
     override fun onStop() {
         super.onStop()
         speechRecognizer?.stopListening()
+
+        mWords.forEach { (word, _) ->
+            mViewModel.addWord(word)
+        }
     }
 
     private fun buildSpeechRecognizer() {
         if (activity != null) {
             this.speechRecognizer =
                 SpeechRecognizer.createSpeechRecognizer(activity?.applicationContext)
-            this.speechRecognizer?.setRecognitionListener(createRecognitionListenerStringStream {
-                it.split(" ").forEach {
-                    words[it] = 1
-                    val c = words.getOrDefault(it, 0)
-                    words[it] = c + 1
+            this.speechRecognizer?.setRecognitionListener(createRecognitionListenerStringStream { messages ->
+                messages?.forEach { message ->
+                    message.split(" ").forEach { word ->
+                        val c = mWords.getOrDefault(word, 0)
+                        mWords[word] = c + 1
+                    }
                 }
             })
         }
@@ -71,8 +78,7 @@ class SpeechRecognizerDialogFragment : DialogFragment() {
         speechRecognizer?.startListening(intent)
     }
 
-
-    private fun createRecognitionListenerStringStream(onResult: (String) -> Unit): RecognitionListener {
+    private fun createRecognitionListenerStringStream(onResult: (ArrayList<String>?) -> Unit): RecognitionListener {
         return object : RecognitionListener {
 
             // サウンドレベルの変更時に呼ばれる。
@@ -165,7 +171,7 @@ class SpeechRecognizerDialogFragment : DialogFragment() {
             override fun onResults(results: Bundle) {
                 val stringArray =
                     results.getStringArrayList(android.speech.SpeechRecognizer.RESULTS_RECOGNITION)
-                onResult(stringArray.toString())
+                onResult(stringArray)
 
                 speechRecognizer?.stopListening()
                 startListening()

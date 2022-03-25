@@ -31,10 +31,6 @@ class WordListFragment : Fragment() {
             }
         }
 
-        mAdapter.setCard(Card("A"))
-        mAdapter.setCard(Card("B"))
-        mAdapter.setCard(Card("C"))
-
         mViewModel.CARDS.observe(viewLifecycleOwner) {
             mAdapter.setCard(it)
         }
